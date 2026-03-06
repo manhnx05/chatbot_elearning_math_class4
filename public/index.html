@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>API Status</title></head>
+<body>
+<pre id="json"></pre>
+<script>
+  const data = {
+    status: "API is running",
+    endpoints: { chat: "POST /api/chat" }
+  };
+  document.getElementById('json').textContent = JSON.stringify(data, null, 2);
+</script>
+</body>
+</html>
