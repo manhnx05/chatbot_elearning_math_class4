@@ -1,86 +1,97 @@
-// Vercel Serverless Function cho chat
+/**
+ * Vercel Serverless Function - Gemini API Proxy
+ * Endpoint: /api/chat
+ * Method: POST
+ * Body: { "message": "user message" }
+ * Response: { "reply": "AI response" }
+ */
+
 export default async function handler(req, res) {
-    // Cấu hình CORS
+    // Enable CORS for all origins
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    );
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Xử lý preflight request
+    // Handle preflight OPTIONS request
     if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
+        return res.status(200).end();
     }
 
-    // Chỉ cho phép POST
+    // Only allow POST method
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ 
+            error: 'Method not allowed. Use POST.' 
+        });
     }
 
     try {
+        // Get message from request body
         const { message } = req.body;
-        
-        if (!message) {
-            return res.status(400).json({ error: 'Thiếu nội dung tin nhắn' });
-        }
 
-        // API key Gemini - Lấy từ biến môi trường Vercel
-        const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-        const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-
-        if (!GEMINI_API_KEY) {
-            console.error('GEMINI_API_KEY không được cấu hình');
-            return res.status(500).json({ 
-                error: 'Server chưa được cấu hình API key. Vui lòng thêm GEMINI_API_KEY vào Environment Variables trong Vercel.' 
+        // Validate message
+        if (!message || typeof message !== 'string') {
+            return res.status(400).json({ 
+                error: 'Missing or invalid "message" field in request body' 
             });
         }
 
-        console.log('Nhận tin nhắn:', message);
+        // Get API key from environment variable
+        const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+        
+        if (!GEMINI_API_KEY) {
+            console.error('GEMINI_API_KEY not configured');
+            return res.status(500).json({ 
+                error: 'Server configuration error. API key not set.' 
+            });
+        }
 
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_API_KEY}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    contents: [
-                        {
-                            parts: [
-                                {
-                                    text: message
-                                }
-                            ]
-                        }
-                    ]
-                }),
-            }
-        );
+        // Gemini API configuration
+        const MODEL_NAME = 'gemini-1.5-flash';
+        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_API_KEY}`;
+
+        // Call Gemini API
+        const response = await fetch(GEMINI_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: message
+                    }]
+                }]
+            }),
+        });
 
         const data = await response.json();
 
+        // Handle Gemini API errors
         if (!response.ok) {
-            console.error('Lỗi Gemini API:', data);
-            return res.status(500).json({ 
-                error: data?.error?.message || 'Lỗi từ Gemini API' 
+            console.error('Gemini API error:', data);
+            return res.status(response.status).json({ 
+                error: data?.error?.message || 'Gemini API request failed' 
             });
         }
 
-        if (!data.candidates || !data.candidates[0]?.content?.parts[0]?.text) {
+        // Extract reply from Gemini response
+        const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!reply) {
+            console.error('Invalid Gemini response format:', data);
             return res.status(500).json({ 
-                error: 'Không nhận được phản hồi hợp lệ từ Gemini API' 
+                error: 'Invalid response from Gemini API' 
             });
         }
 
-        const reply = data.candidates[0].content.parts[0].text;
-        res.status(200).json({ reply });
+        // Return successful response
+        return res.status(200).json({ reply });
 
     } catch (error) {
-        console.error('Lỗi server:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Server error:', error);
+        return res.status(500).json({ 
+            error: 'Internal server error: ' + error.message 
+        });
     }
 }

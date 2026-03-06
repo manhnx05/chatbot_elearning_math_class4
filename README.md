@@ -1,94 +1,250 @@
-# 🎓 Chatbot Trợ lý Học Toán Lớp 4
+# 🤖 Gemini Chatbot Server
 
-Chatbot AI hỗ trợ học sinh lớp 4 học toán với **Cô Nguyễn Thị Ngọc Điệp**.
+A minimal serverless backend proxy for Google Gemini API, deployable on Vercel. This server acts as a secure intermediary to hide your Gemini API key from public frontends.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/manhnx05/chatbot_elearning_math_class4)
+## 📁 Project Structure
 
-## ✨ Tính năng
+```
+gemini-chatbot-server/
+├── api/
+│   └── chat.js          # Serverless function endpoint
+├── package.json         # Project configuration
+├── vercel.json          # Vercel deployment config
+└── README.md            # This file
+```
 
-- 💬 Chat với AI về kiến thức toán lớp 4
-- 🎤 Nhập bằng giọng nói (Speech Recognition)
-- 📷 Phân tích hình ảnh bài toán
-- 💡 Câu hỏi gợi ý về đo lường (tấn, tạ, yến, kg)
-- 🎨 Giao diện thân thiện, màu sắc vui nhộn cho học sinh tiểu học
-- 🔒 API key được bảo mật trên server
+## 🚀 Deploy to Vercel
 
-## 🚀 Sử dụng nhanh
+### Method 1: Deploy via Vercel Dashboard (Recommended)
 
-### Cách 1: Chạy Local
+1. **Push to GitHub**
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
+   git push -u origin main
+   ```
+
+2. **Import to Vercel**
+   - Go to https://vercel.com
+   - Click "Add New" → "Project"
+   - Import your GitHub repository
+   - Click "Deploy"
+
+3. **Add Environment Variable**
+   - Go to Project Settings → Environment Variables
+   - Add new variable:
+     - **Name:** `GEMINI_API_KEY`
+     - **Value:** Your Gemini API key (get from https://makersuite.google.com/app/apikey)
+     - **Environment:** Production, Preview, Development (select all)
+   - Click "Save"
+
+4. **Redeploy**
+   - Go to Deployments tab
+   - Click "Redeploy" on the latest deployment
+
+### Method 2: Deploy via Vercel CLI
 
 ```bash
-# Clone repository
-git clone https://github.com/manhnx05/chatbot_elearning_math_class4.git
-cd chatbot_elearning_math_class4
+# Install Vercel CLI
+npm install -g vercel
 
-# Cài đặt dependencies
-npm install
+# Login to Vercel
+vercel login
 
-# Tạo file .env
-cp .env.example .env
-# Thêm GEMINI_API_KEY vào file .env
+# Deploy
+vercel
 
-# Chạy server
-npm start
+# Add environment variable
+vercel env add GEMINI_API_KEY
 
-# Mở trình duyệt
-# http://localhost:3000/index.html
+# Deploy to production
+vercel --prod
 ```
 
-### Cách 2: Deploy lên Vercel
+### Method 3: One-Click Deploy
 
-1. Fork repository này
-2. Vào https://vercel.com
-3. Import project từ GitHub
-4. Thêm Environment Variable: `GEMINI_API_KEY`
-5. Deploy!
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/YOUR_REPO&env=GEMINI_API_KEY&envDescription=Gemini%20API%20Key%20from%20Google%20AI%20Studio&envLink=https://makersuite.google.com/app/apikey)
 
-**Hoặc click nút này:**
+## 🔑 Get Gemini API Key
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/manhnx05/chatbot_elearning_math_class4&env=GEMINI_API_KEY&envDescription=Gemini%20API%20Key%20from%20Google%20AI%20Studio&envLink=https://makersuite.google.com/app/apikey)
+1. Visit https://makersuite.google.com/app/apikey
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Copy the generated key (starts with `AIzaSy...`)
 
-## 📚 Tài liệu
+## 📡 API Endpoint
 
-- [📖 Hướng dẫn sử dụng](HUONG_DAN_SU_DUNG.md) - Chi tiết cách chạy và sử dụng
-- [🔒 Bảo mật](SECURITY.md) - Hướng dẫn bảo mật API key
-- [✅ Kiểm tra bảo mật](SECURITY_CHECK.md) - Báo cáo kiểm tra
+### POST /api/chat
 
-## 🛠️ Công nghệ
-
-- **Frontend:** HTML, CSS, JavaScript
-- **Backend:** Node.js, Express.js
-- **AI:** Google Gemini API
-- **Deploy:** Vercel Serverless Functions
-
-## 📁 Cấu trúc
-
-```
-├── api/                    # Vercel Serverless Functions
-│   ├── chat.js            # Chat endpoint
-│   ├── image.js           # Image analysis endpoint
-│   └── health.js          # Health check endpoint
-├── index.html             # Giao diện chatbot
-├── server.js              # Local development server
-├── vercel.json            # Vercel configuration
-├── package.json           # Dependencies
-└── .env.example           # Environment variables template
+**Request:**
+```json
+{
+  "message": "What is 1 ton in kg?"
+}
 ```
 
-## 🎯 Demo
+**Response:**
+```json
+{
+  "reply": "1 ton is equal to 1000 kilograms."
+}
+```
 
-**Live Demo:** Đang deploy...
+**Error Response:**
+```json
+{
+  "error": "Error message here"
+}
+```
 
-## 📞 Liên hệ
+## 💻 Frontend Integration
 
-- **Giáo viên:** Cô Nguyễn Thị Ngọc Điệp
-- **Phone:** 0363357745
-- **GitHub:** https://github.com/manhnx05/chatbot_elearning_math_class4
+### Example: HTML + JavaScript
 
-## 📝 License
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gemini Chatbot</title>
+</head>
+<body>
+    <input type="text" id="userInput" placeholder="Ask a question...">
+    <button onclick="sendMessage()">Send</button>
+    <div id="response"></div>
 
-MIT License
+    <script>
+        // Replace with your deployed Vercel URL
+        const API_URL = 'https://your-project.vercel.app/api/chat';
+
+        async function sendMessage() {
+            const message = document.getElementById('userInput').value;
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('response').innerText = data.reply;
+                } else {
+                    document.getElementById('response').innerText = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                document.getElementById('response').innerText = 'Network error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
+```
+
+### Example: Using fetch() in JavaScript
+
+```javascript
+async function chatWithGemini(message) {
+    const API_URL = 'https://your-project.vercel.app/api/chat';
+    
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            return data.reply;
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (error) {
+        console.error('Chat error:', error);
+        throw error;
+    }
+}
+
+// Usage
+chatWithGemini('Hello, how are you?')
+    .then(reply => console.log('AI:', reply))
+    .catch(error => console.error('Error:', error));
+```
+
+## 🧪 Test Locally
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Set environment variable locally
+export GEMINI_API_KEY=your_api_key_here
+
+# Run development server
+vercel dev
+
+# Test endpoint
+curl -X POST http://localhost:3000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Hello"}'
+```
+
+## 🔒 Security Features
+
+- ✅ API key stored securely in Vercel Environment Variables
+- ✅ API key never exposed to frontend
+- ✅ CORS enabled for public access
+- ✅ Input validation
+- ✅ Error handling
+- ✅ No API key in source code
+
+## 📝 Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GEMINI_API_KEY` | Yes | Your Google Gemini API key |
+
+## 🛠️ Troubleshooting
+
+### Error: "Server configuration error. API key not set."
+- Make sure you added `GEMINI_API_KEY` in Vercel Environment Variables
+- Redeploy after adding the variable
+
+### Error: "Method not allowed"
+- Use POST method, not GET
+- Check your fetch() request method
+
+### Error: "Missing or invalid message field"
+- Ensure request body contains `{ "message": "your text" }`
+- Check Content-Type header is `application/json`
+
+### CORS Error
+- CORS is already enabled in the code
+- If still having issues, check browser console for details
+
+## 📄 License
+
+MIT License - Feel free to use for any purpose
+
+## 👥 Author
+
+**Cô Nguyễn Thị Ngọc Điệp**
+- GitHub: https://github.com/manhnx05/chatbot_elearning_math_class4
+
+## 🙏 Acknowledgments
+
+- [Google Gemini API](https://ai.google.dev/)
+- [Vercel](https://vercel.com)
 
 ---
 
-⭐ Nếu project hữu ích, hãy cho một star nhé! ⭐
+⭐ If this project helps you, please give it a star!
