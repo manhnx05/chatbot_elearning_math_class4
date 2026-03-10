@@ -47,7 +47,7 @@ export default async function handler(req, res) {
         }
 
         // Gemini API configuration
-        const MODEL_NAME = 'gemini-1.5-flash';
+        const MODEL_NAME = 'gemini-2.0-flash';
         const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_API_KEY}`;
 
         // Call Gemini API
